@@ -10,7 +10,7 @@ public class BruteForceMethodImpl implements NeighboursFinder {
 
   @Override
   public Map<Particle, Collection<Particle>> run(Collection<Particle> particles,
-                                                 double L, int M, double rc, boolean periodicLimit) {
+                                                 double L, double W, int M1, int M2, double rc, boolean periodicLimit) {
 
     final List<Particle> pointsAsList = new ArrayList<>(particles);
     final Map<Particle, Collection<Particle>> collisionPerParticle = new HashMap<>(particles.size());
