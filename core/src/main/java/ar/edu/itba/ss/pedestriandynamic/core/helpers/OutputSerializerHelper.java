@@ -66,9 +66,15 @@ public class OutputSerializerHelper {
             .append(staticData.width()).append(NL)
             .append(staticData.length()).append(NL)
             .append(staticData.diameterOpening()).append(NL)
+            .append(staticData.minDiameter()).append(NL)
+            .append(staticData.maxDiameter()).append(NL)
             .append(staticData.mass()).append(NL)
             .append(staticData.kn()).append(NL)
-            .append(staticData.kt()).append(NL);
+            .append(staticData.kt()).append(NL)
+            .append(staticData.A()).append(NL)
+            .append(staticData.B()).append(NL)
+            .append(staticData.tau()).append(NL)
+            .append(staticData.desiredSpeed()).append(NL);
     return sb.toString();
   }
 

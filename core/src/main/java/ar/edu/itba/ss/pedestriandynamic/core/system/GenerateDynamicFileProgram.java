@@ -44,20 +44,20 @@ public class GenerateDynamicFileProgram implements MainProgram {
     final StaticData staticData = InputSerializerHelper.loadStaticFile(args[I_STATIC_FILE]);
     final Collection<Particle> particles = initializeSystemParticles(staticData);
 
-    final String serializedStaticData = OutputSerializerHelper.dynamicOutput(particles);
-    final Path pathToStaticFile =
+    final String serializedDynamicData = OutputSerializerHelper.dynamicOutput(particles);
+    final Path pathToDynamicFile =
             IOService.createOutputFile(DEFAULT_OUTPUT_FOLDER, DEFAULT_DYNAMIC_FILE_NAME, DEFAULT_DAT_FILE_EXTENSION);
-    IOService.openOutputFile(pathToStaticFile, true);
-    IOService.appendToFile(pathToStaticFile, serializedStaticData);
-    IOService.closeOutputFile(pathToStaticFile);
+    IOService.openOutputFile(pathToDynamicFile, true);
+    IOService.appendToFile(pathToDynamicFile, serializedDynamicData);
+    IOService.closeOutputFile(pathToDynamicFile);
     System.out.println("[DONE]");
   }
 
   private Collection<Particle> initializeSystemParticles(final StaticData staticData) {
     final ParticleFactory particleFactory = ParticleFactory.getInstance();
 
-    if (!validParametersRange(staticData.length(), staticData.width(), staticData.diameterOpening())) {
-      IOService.exit(VALIDATION_FAILED, "length > width > diameterOpening");
+    if (!validParametersRange(staticData.width(), staticData.diameterOpening())) {
+      IOService.exit(VALIDATION_FAILED, "width > diameterOpening");
     }
 
     final double[] radios = new double[staticData.N()];
@@ -81,10 +81,9 @@ public class GenerateDynamicFileProgram implements MainProgram {
             MAX_OVERLAP_TRIES);
   }
 
-  private boolean validParametersRange(final double length,
-                                       final double width,
+  private boolean validParametersRange(final double width,
                                        final double diameterOpening) {
-    return length > width && width > diameterOpening;
+    return width > diameterOpening;
   }
 
   private double randomDiameter(final double minDiameter, final double maxDiameter) {
