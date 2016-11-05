@@ -5,7 +5,7 @@
     <appender name="root-appender" class="ch.qos.logback.core.rolling.RollingFileAppender">
         <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
             <maxHistory>5</maxHistory>
-            <fileNamePattern>logs/granular-media.warnings.%d{yyyy-MM-dd}.log</fileNamePattern>
+            <fileNamePattern>logs/pedestrian-dynamic.warnings.%d{yyyy-MM-dd}.log</fileNamePattern>
         </rollingPolicy>
         <encoder>
             <pattern>${defaultPattern:-}</pattern>
@@ -13,10 +13,10 @@
     </appender>
 
 
-    <appender name="granular-media-appender" class="ch.qos.logback.core.rolling.RollingFileAppender">
+    <appender name="pedestrian-dynamic-appender" class="ch.qos.logback.core.rolling.RollingFileAppender">
         <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
             <maxHistory>5</maxHistory>
-            <fileNamePattern>logs/granular-media.own.%d{yyyy-MM-dd}.log</fileNamePattern>
+            <fileNamePattern>logs/pedestrian-dynamic.own.%d{yyyy-MM-dd}.log</fileNamePattern>
         </rollingPolicy>
         <encoder>
             <pattern>${defaultPattern:-}</pattern>
@@ -27,8 +27,8 @@
         <appender-ref ref="root-appender" />
     </root>
 
-    <logger name="ar.edu.itba.ss.granularmedia" level="INFO" additivity="false">
-        <appender-ref ref="granular-media-appender" />
+    <logger name="ar.edu.itba.ss.pedestriandynamic" level="INFO" additivity="false">
+        <appender-ref ref="pedestrian-dynamic-appender" />
     </logger>
 
 </configuration>

@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
-  <groupId>ar.edu.itba.ss.granularmedia</groupId>
-  <artifactId>granular-media</artifactId>
+  <groupId>ar.edu.itba.ss.pedestriandynamic</groupId>
+  <artifactId>pedestrian-dynamic</artifactId>
   <version>1.0.0-SNAPSHOT</version>
   <packaging>pom</packaging>
-  <name>granular-media</name>
+  <name>pedestrian-dynamic</name>
   <modules>
     <module>core</module>
     <module>interfaces</module>
@@ -14,7 +14,7 @@
   </modules>
 
   <properties>
-    <jar.name>granular-media</jar.name>
+    <jar.name>pedestrian-dynamic</jar.name>
     <maven.compiler.source>1.8</maven.compiler.source>
     <maven.compiler.target>1.8</maven.compiler.target>
     <maven-compiler-plugin.version>3.3</maven-compiler-plugin.version>
@@ -42,7 +42,7 @@
           </descriptorRefs>
           <archive>
             <manifest>
-              <mainClass>ar.edu.itba.ss.granularmedia.core.Main</mainClass>
+              <mainClass>ar.edu.itba.ss.pedestriandynamic.core.Main</mainClass>
             </manifest>
           </archive>
           <!-- Rename .jar file and disable the append of 'jar-with-dependencies -->
@@ -79,7 +79,7 @@
           </excludes>
           <archive>
             <manifest>
-              <mainClass>ar.edu.itba.ss.granularmedia.core.Main</mainClass>
+              <mainClass>ar.edu.itba.ss.pedestriandynamic.core.Main</mainClass>
             </manifest>
           </archive>
         </configuration>

@@ -9,7 +9,7 @@
     </appender>
 
 
-    <appender name="granular-media-appender" class="ch.qos.logback.core.ConsoleAppender">
+    <appender name="pedestrian-dynamic-appender" class="ch.qos.logback.core.ConsoleAppender">
         <encoder>
             <pattern>${defaultPattern:-}</pattern>
         </encoder>
@@ -19,8 +19,8 @@
         <appender-ref ref="root-appender" />
     </root>
 
-    <logger name="ar.edu.itba.ss.granularmedia" level="DEBUG" additivity="false">
-        <appender-ref ref="granular-media-appender" />
+    <logger name="ar.edu.itba.ss.pedestriandynamic" level="DEBUG" additivity="false">
+        <appender-ref ref="pedestrian-dynamic-appender" />
     </logger>
 
 </configuration>
