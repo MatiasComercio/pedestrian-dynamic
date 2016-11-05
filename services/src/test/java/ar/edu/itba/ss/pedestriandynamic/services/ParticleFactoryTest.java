@@ -9,15 +9,15 @@ import java.util.Arrays;
 import java.util.Set;
 
 public class ParticleFactoryTest {
-  private static final int N_PARTICLES = 500;
+  private static final int N_PARTICLES = 5;
   private static final double[] radios;
   private static final double MASS = 0.001;
   private static final double RADIO = 2;
   private static final int MAX_TRIES = 100;
   private static final int MIN_X = 0;
   private static final int MIN_Y = 0;
-  private static final int MAX_X = 20;
-  private static final int MAX_Y = 20;
+  private static final int MAX_X = 3;
+  private static final int MAX_Y = 3;
   private static final Particle leftBottomParticle = Particle.builder(MIN_X, MIN_Y).build();
   private static final Particle rightTopParticle = Particle.builder(MAX_X, MAX_Y).build();
 
@@ -30,7 +30,7 @@ public class ParticleFactoryTest {
   @Test
   public void testRandomPoints() {
     // trivial repetition
-    for (int i = 0 ; i < 1000 ; i++) {
+    for (int i = 0 ; i < 1 ; i++) {
       wrappedTestRandomPoints();
     }
   }

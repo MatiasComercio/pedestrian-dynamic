@@ -1,7 +1,7 @@
-# Granular Media
-TP5 for Systems Simulation course from ITBA.
+# Pedestrian Dynamics
+TP6 for Systems Simulation course from ITBA.
 
-Java Implementation of a granular system
+Java Implementation of a pedestrian dynamics simulation
 ## Build
 To build the project, it is necessary to have Maven and Java 1.8 installed.
 Then, run
@@ -23,7 +23,7 @@ So, we highly recommend that for using this jar, you may run
 
 Generate static data file
 
-    $ java -jar core/target/pedestrian-dynamic.jar gen static 700 1e-2 1.1e-2 2.5e-3 0.01 10e5 20e5
+    $ java -jar core/target/pedestrian-dynamic.jar gen static 100 20 20 1.2 .5 .7 80 1.2e5 2.4e5 2e3 .08 .5 1.5
 
 Generate dynamic data file
 

@@ -1,5 +1,6 @@
 package ar.edu.itba.ss.pedestriandynamic.core.helpers;
 
+import ar.edu.itba.ss.pedestriandynamic.core.system.GenerateStaticFileProgram;
 import ar.edu.itba.ss.pedestriandynamic.models.Particle;
 import ar.edu.itba.ss.pedestriandynamic.models.ParticleType;
 import ar.edu.itba.ss.pedestriandynamic.models.StaticData;
@@ -44,15 +45,21 @@ public class InputSerializerHelper {
   private static StaticData readStaticFile(final Path staticFilePath) {
     final Stream<String> stream = IOService.readLines(staticFilePath);
     final Iterator<String> streamLines = stream.iterator();
-    final int n = IOService.parseAsInt(streamLines.next(), "<nParticles>");
+    final int n = IOService.parseAsInt(streamLines.next(), "<n_particles>");
     final double width = IOService.parseAsDouble(streamLines.next(), "<width>");
     final double length = IOService.parseAsDouble(streamLines.next(), "<length>");
-    final double diameterOpening = IOService.parseAsDouble(streamLines.next(), "<diameterOpening>");
+    final double diameterOpening = IOService.parseAsDouble(streamLines.next(), "<diameter_opening>");
+    final double minDiameter = IOService.parseAsDouble(streamLines.next(), "<min_diameter>");
+    final double maxDiameter = IOService.parseAsDouble(streamLines.next(), "<max_diameter>");
     final double mass = IOService.parseAsDouble(streamLines.next(), "<mass>");
     final double kn = IOService.parseAsDouble(streamLines.next(), "<kn>");
     final double kt = IOService.parseAsDouble(streamLines.next(), "<kt>");
+    final double A = IOService.parseAsDouble(streamLines.next(), "<A>");
+    final double B = IOService.parseAsDouble(streamLines.next(), "<B>");
+    final double tau = IOService.parseAsDouble(streamLines.next(), "<tau>");
+    final double desiredSpeed = IOService.parseAsDouble(streamLines.next(), "<desired_speed>");
 
-    return StaticData.builder(n, width, length, diameterOpening, mass, kn, kt).build();
+    return StaticData.builder(n, width, length, diameterOpening, minDiameter, maxDiameter, mass, kn, kt, A, B, tau, desiredSpeed).build();
   }
 
   private static Collection<Particle> readDynamicFile(final Path dynamicFilePath) {

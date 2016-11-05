@@ -45,15 +45,11 @@ public abstract class StaticDataAbs {
   @Builder.Parameter
   public abstract double diameterOpening();
 
-  @Value.Derived
-  public double minDiameter() {
-    return diameterOpening() == 0 ?  width() / 21 : diameterOpening() / 7;
-  }
+  @Builder.Parameter
+  public abstract double minDiameter();
 
-  @Value.Derived
-  public double maxDiameter() {
-    return diameterOpening() == 0 ?  width() / 15 : diameterOpening() / 5;
-  }
+  @Builder.Parameter
+  public abstract double maxDiameter();
 
   @Builder.Parameter
   public abstract double mass();
@@ -63,6 +59,18 @@ public abstract class StaticDataAbs {
 
   @Builder.Parameter
   public abstract double kt();
+
+  @Builder.Parameter
+  public abstract double A();
+
+  @Builder.Parameter
+  public abstract double B();
+
+  @Builder.Parameter
+  public abstract double tau();
+
+  @Builder.Parameter
+  public abstract double desiredSpeed();
 
   @Value.Default
   public double simulationTime() {

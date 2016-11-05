@@ -6,7 +6,7 @@ public class HelpProgram implements MainProgram {
   private static final String HELP_TEXT =
           "Granular Media Simulator.\n" +
                   "Arguments: \n" +
-                  "* gen static <nParticles> <width> <length> <diameterOpening> <mass> <kn> <kt> : \n" +
+                  "* gen static <n_particles> <width> <length> <diameter_opening> <min_diameter> <max_diameter> <mass> <kn> <kt> <A> <B> <tau> <desired_speed> : \n" +
                   "     generates an output/static.dat file with the desired parameters.\n" +
                   "* gen dynamic <path/to/static.dat> : \n" +
                   "     generates an output/dynamic.dat file with the information specified at the " +

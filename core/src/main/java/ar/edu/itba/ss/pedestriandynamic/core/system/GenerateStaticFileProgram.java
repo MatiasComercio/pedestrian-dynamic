@@ -19,11 +19,18 @@ public class GenerateStaticFileProgram implements MainProgram {
   private static final int I_WIDTH = 3;
   private static final int I_LENGTH = 4;
   private static final int I_DIAMETER_OPENING = 5;
-  private static final int I_MASS = 6;
-  private static final int I_KN = 7;
-  private static final int I_KT = 8;
+  private static final int I_MIN_DIAMETER = 6;
+  private static final int I_MAX_DIAMETER = 7;
+  private static final int I_MASS = 8;
+  private static final int I_KN = 9;
+  private static final int I_KT = 10;
+  private static final int I_A = 11;
+  private static final int I_B = 12;
+  private static final int I_TAU = 13;
+  private static final int I_DESIRED_SPEED = 14;
 
-  private static final int N_ARGS_EXPECTED = 9;
+
+  private static final int N_ARGS_EXPECTED = 15;
 
   @Override
   public void run(final String[] args) {
@@ -45,14 +52,21 @@ public class GenerateStaticFileProgram implements MainProgram {
       throw new IllegalStateException();
     }
 
-    final int nParticles = IOService.parseAsInt(args[I_N_PARTICLES], "<nParticles>");
+    final int nParticles = IOService.parseAsInt(args[I_N_PARTICLES], "<n_particles>");
     final double width = IOService.parseAsDouble(args[I_WIDTH], "<width>");
     final double length = IOService.parseAsDouble(args[I_LENGTH], "<length>");
     final double diameterOpening = IOService.parseAsDouble(args[I_DIAMETER_OPENING], "<diameter_opening>");
+    final double minDiameter = IOService.parseAsDouble(args[I_MIN_DIAMETER], "<min_diameter>");
+    final double maxDiameter = IOService.parseAsDouble(args[I_MAX_DIAMETER], "<max_diameter>");
     final double mass = IOService.parseAsDouble(args[I_MASS], "<mass>");
     final double kn = IOService.parseAsDouble(args[I_KN], "<kn>");
     final double kt = IOService.parseAsDouble(args[I_KT], "<kt>");
+    final double A = IOService.parseAsDouble(args[I_A], "<A>");
+    final double B = IOService.parseAsDouble(args[I_B], "<B>");
+    final double tau = IOService.parseAsDouble(args[I_TAU], "<tau>");
+    final double desiredSpeed = IOService.parseAsDouble(args[I_DESIRED_SPEED], "<desired_speed>");
 
-    return StaticData.builder(nParticles, width, length, diameterOpening, mass, kn, kt).build();
+    return StaticData.builder(nParticles, width, length, diameterOpening, minDiameter,
+            maxDiameter, mass, kn, kt, A, B, tau, desiredSpeed).build();
   }
 }
