@@ -229,6 +229,15 @@ import static java.lang.Math.pow;
     return this.predictedParticles;
   }
 
+  /**
+   * Updates all the current system's particles
+   * @param updatedSystemParticles the new system's particles
+   * @implNote This method should be used to update system's particle status only
+   */
+  protected void particles(final Collection<Particle> updatedSystemParticles) {
+    particles = updatedSystemParticles;
+  }
+
   // package-private
   // access allowed from this module and gear package only, i.e., from Gear implementations only
 
@@ -310,15 +319,6 @@ import static java.lang.Math.pow;
    */
   /* package-private */ Vector2D setDeltaR2(final Particle particle, final Vector2D updatedDeltaR2) {
     return deltasR2.put(particle, updatedDeltaR2);
-  }
-
-  /**
-   * Updates all the current system's particles
-   * @param updatedSystemParticles the new system's particles
-   * @implNote This method should be used to update system's particle status only
-   */
-  /* package-private */ void particles(final Collection<Particle> updatedSystemParticles) {
-    particles = updatedSystemParticles;
   }
 
   /**

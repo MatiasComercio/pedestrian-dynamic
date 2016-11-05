@@ -2,8 +2,8 @@ package ar.edu.itba.ss.pedestriandynamic.core.system;
 
 import ar.edu.itba.ss.pedestriandynamic.core.helpers.InputSerializerHelper;
 import ar.edu.itba.ss.pedestriandynamic.core.helpers.OutputSerializerHelper;
-import ar.edu.itba.ss.pedestriandynamic.core.system.integration.Gear5GranularMediaSystemData;
-import ar.edu.itba.ss.pedestriandynamic.core.system.integration.GearGranularMediaSystem;
+import ar.edu.itba.ss.pedestriandynamic.core.system.integration.Gear5PedestrianDynamicsSystemData;
+import ar.edu.itba.ss.pedestriandynamic.core.system.integration.GearPedestrianDynamicsSystem;
 import ar.edu.itba.ss.pedestriandynamic.interfaces.MainProgram;
 import ar.edu.itba.ss.pedestriandynamic.interfaces.TimeDrivenSimulationSystem;
 import ar.edu.itba.ss.pedestriandynamic.models.Particle;
@@ -20,8 +20,8 @@ import java.util.*;
 
 import static ar.edu.itba.ss.pedestriandynamic.services.IOService.ExitStatus.BAD_N_ARGUMENTS;
 
-public class GranularMediaSystemProgram implements MainProgram {
-  private static final Logger LOGGER = LoggerFactory.getLogger(GranularMediaSystemProgram.class);
+public class PedestrianDynamicsProgram implements MainProgram {
+  private static final Logger LOGGER = LoggerFactory.getLogger(PedestrianDynamicsProgram.class);
 
   // non-magic number constants
   private static final double ZERO = 0;
@@ -49,14 +49,28 @@ public class GranularMediaSystemProgram implements MainProgram {
   private static final int I_DELTA_1 = 4;
   private static final int I_DELTA_2 = 5;
   private static final int I_PRINT_OVITO = 6;
-  private static final int N_ARGS_EXPECTED = 7;
+  private static final int I_DATED_FILE = 7;
+  private static final int N_ARGS_EXPECTED = 8;
 
-  private final String defaultOutputFolder = DEFAULT_OUTPUT_FOLDER + '/' + LocalDateTime.now();
+  private final String defaultOutputFolder;
   private final Path pathToOvitoFile;
   private final Path pathToKineticEnergyFile;
   private final Path pathToFlowFile;
 
-  public GranularMediaSystemProgram() {
+  public PedestrianDynamicsProgram(final String[] args) {
+    if (args.length < N_ARGS_EXPECTED) {
+      IOService.exit(BAD_N_ARGUMENTS, null);
+      // should never reach here
+      throw new IllegalStateException();
+    }
+
+    final boolean datedFile = IOService.parseAsBoolean(args[I_DATED_FILE], "<dated_file>");
+    if (datedFile) {
+      this.defaultOutputFolder = DEFAULT_OUTPUT_FOLDER + '/' + LocalDateTime.now();
+    } else {
+      this.defaultOutputFolder = DEFAULT_OUTPUT_FOLDER;
+    }
+
     this.pathToOvitoFile =
             IOService.createOutputFile(defaultOutputFolder, DEFAULT_OVITO_FILE_NAME, OVITO_FILE_EXTENSION);
     this.pathToKineticEnergyFile =
@@ -88,8 +102,8 @@ public class GranularMediaSystemProgram implements MainProgram {
     // infinite mass so as to improve collisions
     systemParticles.addAll(getOpeningWallsParticles(systemWalls));
 
-    final TimeDrivenSimulationSystem<Gear5GranularMediaSystemData> granularMediaSystem =
-            new GearGranularMediaSystem(systemParticles, systemWalls, staticData);
+    final TimeDrivenSimulationSystem<Gear5PedestrianDynamicsSystemData> granularMediaSystem =
+            new GearPedestrianDynamicsSystem(systemParticles, systemWalls, staticData);
 
     // helper to write ovito file
     final OutputSerializerHelper outputSerializerHelper = new OutputSerializerHelper(staticData);
@@ -112,7 +126,7 @@ public class GranularMediaSystemProgram implements MainProgram {
   }
 
   // private
-  private void startSimulation(final TimeDrivenSimulationSystem<Gear5GranularMediaSystemData> granularMediaSystem,
+  private void startSimulation(final TimeDrivenSimulationSystem<Gear5PedestrianDynamicsSystemData> granularMediaSystem,
                                final StaticData staticData,
                                final OutputSerializerHelper outputSerializerHelper) {
     final double startTime = System.currentTimeMillis();
@@ -222,7 +236,7 @@ public class GranularMediaSystemProgram implements MainProgram {
             .withSimulationTime(simulationTime).withDelta1(delta1).withDelta2(delta2).withPrintOvito(printOvito);
   }
 
-  private void outputSystem(final Gear5GranularMediaSystemData systemData,
+  private void outputSystem(final Gear5PedestrianDynamicsSystemData systemData,
                             final long step, final double currentTime, final StaticData staticData,
                             final OutputSerializerHelper outputSerializerHelper) {
     if (staticData.printOvito()) {

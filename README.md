@@ -31,13 +31,4 @@ Generate dynamic data file
 
 Run granular system's simulation
 
-    $ java -jar core/target/pedestrian-dynamic.jar sim output/static.dat output/dynamic.dat .5 1e-7 1e-4 true
-
-#### Usage note
-To use a recipient instead of a sile, generate a static data file with `diameterOpening = 0`, i.e.,
-
-    $ java -jar core/target/pedestrian-dynamic.jar gen static 700 1e-2 1.1e-2 0 0.01 10e5 20e5
-
-System is prepared to stop when it has reached the rest condition **ONLY for the above shown conditions**.
-
-In future versions, you should be able to make it stop for different systems.
+    $ java -jar core/target/pedestrian-dynamic.jar sim output/static.dat output/dynamic.dat .5 1e-7 1e-4 true true

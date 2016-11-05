@@ -70,7 +70,7 @@ public abstract class StaticDataAbs {
   public abstract double tau();
 
   @Builder.Parameter
-  public abstract double desiredSpeed();
+  public abstract double drivingSpeed();
 
   @Value.Default
   public double simulationTime() {

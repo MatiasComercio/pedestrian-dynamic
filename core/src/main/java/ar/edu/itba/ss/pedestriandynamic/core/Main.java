@@ -2,7 +2,7 @@ package ar.edu.itba.ss.pedestriandynamic.core;
 
 import ar.edu.itba.ss.pedestriandynamic.core.system.GenerateDynamicFileProgram;
 import ar.edu.itba.ss.pedestriandynamic.core.system.GenerateStaticFileProgram;
-import ar.edu.itba.ss.pedestriandynamic.core.system.GranularMediaSystemProgram;
+import ar.edu.itba.ss.pedestriandynamic.core.system.PedestrianDynamicsProgram;
 import ar.edu.itba.ss.pedestriandynamic.core.system.HelpProgram;
 import ar.edu.itba.ss.pedestriandynamic.interfaces.MainProgram;
 import ar.edu.itba.ss.pedestriandynamic.services.IOService;
@@ -21,7 +21,7 @@ public class Main {
         mainProgram = chooseGenerator(args);
         break;
       case "sim":
-        mainProgram = new GranularMediaSystemProgram();
+        mainProgram = new PedestrianDynamicsProgram(args);
         break;
       default:
         IOService.exit(IOService.ExitStatus.BAD_ARGUMENT, null);

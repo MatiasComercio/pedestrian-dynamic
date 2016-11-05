@@ -74,7 +74,7 @@ public class OutputSerializerHelper {
             .append(staticData.A()).append(NL)
             .append(staticData.B()).append(NL)
             .append(staticData.tau()).append(NL)
-            .append(staticData.desiredSpeed()).append(NL);
+            .append(staticData.drivingSpeed()).append(NL);
     return sb.toString();
   }
 

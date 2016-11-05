@@ -96,6 +96,18 @@ public abstract class ParticleAbs {
     return Math.sqrt(Math.pow(vx(), 2) + Math.pow(vy(), 2));
   }
 
+  @Value.Default
+  @Value.Auxiliary
+  public double drivingSpeed() {
+    return 0;
+  }
+
+  @Value.Default
+  @Value.Auxiliary
+  public double tau() {
+    return 0.5;
+  }
+
   private double normalForce() {
     return normalForce;
   }
@@ -122,6 +134,13 @@ public abstract class ParticleAbs {
   void checkSpeed() {
     if (speed() < 0) {
       throw new IllegalArgumentException("Speed (velocity's module) should be >= 0");
+    }
+  }
+
+  @Value.Check
+  void checkTau() {
+    if (!(tau() > 0)) {
+      throw new IllegalArgumentException("Tau should be > 0");
     }
   }
 
@@ -179,6 +198,8 @@ public abstract class ParticleAbs {
             .isColliding(isColliding())
             .mass(mass())
             .radio(radio())
+            .tau(tau())
+            .drivingSpeed(drivingSpeed())
             .build();
     particle.normalForce(normalForce()); // update normal force
     particle.hasFlowedOut(hasFlowedOut()); // update has flowed out
