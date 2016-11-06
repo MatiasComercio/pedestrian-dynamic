@@ -5,7 +5,7 @@ public enum ParticleType {
   OPENING_RIGHT(2),
   SPAWN(3),
   WALL(4),
-  COMMON(5),
+  PEDESTRIAN(5),
   BORDER(6);
 
   private final int code;

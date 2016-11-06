@@ -192,7 +192,7 @@ public class OutputSerializerHelper {
   private static double[] chooseColor(final Particle particle) {
     final double[] color = new double[3];
     switch (particle.type()) {
-      case COMMON:
+      case PEDESTRIAN:
         // red increasing with pressure
         // blue decreasing with pressure
         final double maxPressure = Particle.getMaxPressure();

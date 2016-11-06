@@ -5,7 +5,6 @@ import org.immutables.value.Value;
 
 import java.util.Deque;
 import java.util.LinkedList;
-import java.util.List;
 
 @Value.Immutable
 @Value.Style(
@@ -16,7 +15,7 @@ import java.util.List;
 public abstract class ParticleAbs {
     /*
     ************************************* IMPORTANT *************************************
-           Please remember to update the two last methods when updating this class
+            Please remember to update the last methods when updating this class
     *************************************************************************************
    */
 
@@ -43,7 +42,7 @@ public abstract class ParticleAbs {
 
   @Value.Default
   @Value.Auxiliary
-  public ParticleType type() { return ParticleType.COMMON; }
+  public ParticleType type() { return ParticleType.PEDESTRIAN; }
 
   @Value.Default
   @Value.Auxiliary
