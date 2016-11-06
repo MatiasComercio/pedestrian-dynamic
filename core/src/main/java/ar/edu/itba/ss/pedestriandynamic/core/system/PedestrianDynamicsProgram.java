@@ -39,7 +39,7 @@ public class PedestrianDynamicsProgram implements MainProgram {
   private static final String DEFAULT_STATIC_DATA_FILE_NAME = "complete_static";
 
   private static final double MS_TO_S = 1/1000.0;
-  private static final double DELTA_LOG = 0.025;
+  private static final double DELTA_LOG = .5;
   private static final double ERROR_TOLERANCE = 7e-7;
 
   // run args index

@@ -31,9 +31,31 @@ public abstract class Space2DMaths {
    * @param w a wall
    * @return superposition value >= 0 if there is a collision indeed; otherwise, a negative value is returned
    */
+  public static double superpositionBetween(final Particle p, final Wall w) {
+    return superpositionBetween(p, w, true);
+  }
+
+  /**
+   *
+   * @param p a particle
+   * @param w a wall
+   * @return the distance from particle {@code p} to wall {@code w}
+   */
+  public static double distanceBetween(final Particle p, final Wall w) {
+    return - superpositionBetween(p, w, false);
+  }
+
+  /**
+   *
+   * @param p a particle
+   * @param w a wall
+   * @param checkCollision true if superposition represents a real collision; false otherwise
+   * @return if {@code checkCollision} if superposition value >= 0 if there is a collision indeed,
+   * if not, a negative value is returned; otherwise, superposition without checking if there is a collision indeed
+   */
   // Modified from:
   // https://code.tutsplus.com/tutorials/quick-tip-collision-detection-between-a-circle-and-a-line-segment--active-10632
-  public static double superpositionBetween(final Particle p, final Wall w) {
+  private static double superpositionBetween(final Particle p, final Wall w, final boolean checkCollision) {
     //calculating wall's perpendicular distance to particle
     final Vector2D c1Particle = p.r0().sub(w.c1());
 
@@ -47,6 +69,11 @@ public abstract class Space2DMaths {
 
     final double distance = normalProjectionModule - p.radio();
     final double superposition = - distance;
+    if (!checkCollision) {
+      return superposition;
+    }
+    // else, check if there were a collision indeed
+
     if (    distance <= 0
             && dotProduct(c1Particle, w.asVector().toVersor()) > 0
             && tangentialProjectionModule < w.asVector().norm2()) {

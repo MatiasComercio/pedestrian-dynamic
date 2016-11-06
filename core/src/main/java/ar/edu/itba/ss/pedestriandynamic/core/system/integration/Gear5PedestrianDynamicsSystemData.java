@@ -26,7 +26,6 @@ public class Gear5PedestrianDynamicsSystemData extends Gear5SystemData {
   private static final int VELOCITY_DERIVED_ORDER = 1;
 
   private static final double ZERO = 0;
-  private static final double EPSILON = 1e-6;
 
   private final StaticData staticData;
   private final Collection<Wall> walls;
@@ -35,13 +34,11 @@ public class Gear5PedestrianDynamicsSystemData extends Gear5SystemData {
   // the one after the main and previous to any secondary target
   // it is used so as to redirect particle to a second target right after starting to exit the main's room
   private final Target auxiliaryTarget;
-  private final List<Target> secondaryTargets;
 
   private Map<Particle, Collection<Particle>> currentNeighbours;
   private double kineticEnergy;
   private long nParticlesFlowed;
   private long nParticlesJustFlowed;
-  private long iNextSecondaryTarget = 0;
 
   /* package-private */ Gear5PedestrianDynamicsSystemData(final Collection<Particle> particles,
                                                           final Collection<Wall> walls,
@@ -57,24 +54,10 @@ public class Gear5PedestrianDynamicsSystemData extends Gear5SystemData {
     // init system targets
     final Vector2D openingCenter = staticData.openingCenter();
     this.mainTarget = Target.builder(openingCenter).build();
-    this.auxiliaryTarget = Target.builder(openingCenter.withY(openingCenter.y() - staticData.maxDiameter())).build();
-    this.secondaryTargets = initializeSecondaryTargets();
+    this.auxiliaryTarget = Target.builder(openingCenter.withY(ZERO)).build();
 
     // update particles to meet the force of a Social Force Model pedestrian dynamics system
     initWithSystemConditions(particles);
-  }
-
-  private List<Target> initializeSecondaryTargets() {
-    final List<Target> secondaryTargets = new ArrayList<>();
-
-    final double xGap = staticData.maxDiameter();
-
-    for (double cX = 0 ; cX < staticData.width() ; cX += xGap ) {
-      final Vector2D cPosition = Vector2D.builder(cX, ZERO).build();
-      secondaryTargets.add(Target.builder(cPosition).build());
-    }
-
-    return secondaryTargets;
   }
 
   public Collection<Wall> walls() {
@@ -160,25 +143,18 @@ public class Gear5PedestrianDynamicsSystemData extends Gear5SystemData {
 
   @Override
   public void fixed(final Particle particle) {
-    checkCurrentTarget(particle);
-
     if (flowedOut(particle)) {
+      particle.hasFlowedOut(true);
       nParticlesJustFlowed ++;
       nParticlesFlowed ++;
+      particle.targets().remove(mainTarget);
     }
+
     if (!removeIfOutOrNoTargets(particle)) {
       kineticEnergy += particle.kineticEnergy();
     }
 
     super.fixed(particle);
-  }
-
-  private void checkCurrentTarget(final Particle particle) {
-    final double distanceToTarget =
-            Space2DMaths.distanceBetween(particle.r0(), particle.targets().peek().position()) - particle.radio();
-    if (distanceToTarget < EPSILON) {
-      particle.targets().poll();
-    }
   }
 
   /**
@@ -216,14 +192,10 @@ public class Gear5PedestrianDynamicsSystemData extends Gear5SystemData {
     final Deque<Target> particleTargets = new LinkedList<>();
     particleTargets.offer(mainTarget);
     particleTargets.offer(auxiliaryTarget);
-    particleTargets.offer(randomSecondaryTarget());
 
     return particleTargets;
   }
 
-  private Target randomSecondaryTarget() {
-    return secondaryTargets.get((int) ((iNextSecondaryTarget ++) % secondaryTargets.size()));
-  }
 
   private Particle particleWithInitialForce(final Particle particle) {
     // calculate social force and driving force
@@ -268,15 +240,17 @@ public class Gear5PedestrianDynamicsSystemData extends Gear5SystemData {
 
   private Vector2D totalSocialForce(final Particle particle) {
     Vector2D totalSocialForce = Space2DMaths.nullVector();
-    for (final Particle systemParticle : particles()) {
-      if (!systemParticle.equals(particle) && particle.type() == PEDESTRIAN && systemParticle.type() == PEDESTRIAN) {
-        totalSocialForce = totalSocialForce.add(socialForce(particle, systemParticle));
+    if (particle.type() == PEDESTRIAN) {
+      for (final Particle systemParticle : particles()) {
+        if (!systemParticle.equals(particle) && systemParticle.type() == PEDESTRIAN) {
+          totalSocialForce = totalSocialForce.add(socialForce(particle, systemParticle));
+        }
       }
     }
     return totalSocialForce;
   }
 
-  private Vector2DAbs socialForce(final Particle particle, final Particle otherParticle) {
+  private Vector2D socialForce(final Particle particle, final Particle otherParticle) {
     final Vector2D[] normalAndTangentialVersors
             = Space2DMaths.normalAndTangentialVersors(particle.r0(), otherParticle.r0());
 
@@ -293,18 +267,14 @@ public class Gear5PedestrianDynamicsSystemData extends Gear5SystemData {
 
     // border-to-border distance
     final double distanceBetween = Space2DMaths.distanceBetween(particle, otherParticle);
-    final double socialForceModule = staticData.A() * Math.exp(-distanceBetween / staticData.B());
+    final double socialForceModule = - staticData.A() * Math.exp(- distanceBetween / staticData.B());
 
     return normalVersor.times(socialForceModule);
   }
 
   private boolean flowedOut(final Particle particle) {
-    // all the particle must flow out (including its radio)
-    if (particle.y() + particle.radio() < staticData.fallLength() && !particle.hasFlowedOut()) {
-      particle.hasFlowedOut(true);
-      return true;
-    }
-    return false;
+    // professor told us that it is OK to consider only when the particles' center have passed
+    return particle.y() < staticData.fallLength() && !particle.hasFlowedOut();
   }
 
   // Particle's total force
@@ -392,6 +362,28 @@ public class Gear5PedestrianDynamicsSystemData extends Gear5SystemData {
     particle.increaseNormalForce(normalForce.norm2()); // increase normal force
 
     return normalForce.add(tangentialForce);
+  }
+
+  @SuppressWarnings("unused")
+  private Vector2D socialForce(final Particle particle, final Wall wall) {
+    final Vector2D[] normalAndTangentialVersors =
+            Space2DMaths.normalAndTangentialVersors(particle, wall);
+
+    if (normalAndTangentialVersors == null) {
+      // both particles are at the exactly same position => something is wrong...
+      // Abort program
+      IOService.exit(IOService.ExitStatus.PARTICLES_AT_SAME_POSITION, new Object[] {particle, wall});
+
+      // should not reach here; written so as validators don't complain about possible null's access
+      return Space2DMaths.nullVector();
+    }
+
+    final Vector2D normalVersor = normalAndTangentialVersors[NORMAL];
+
+    final double distanceBetween = Space2DMaths.distanceBetween(particle, wall);
+    final double socialForceModule = - staticData.A() * Math.exp(- distanceBetween / staticData.B());
+
+    return normalVersor.times(socialForceModule);
   }
 
   // system's force calculation for both normal and tangential components
