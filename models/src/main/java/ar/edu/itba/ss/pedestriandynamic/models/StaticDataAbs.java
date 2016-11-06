@@ -116,4 +116,9 @@ public abstract class StaticDataAbs {
   public boolean printOvito() {
     return false;
   }
+
+  @Value.Derived
+  public Vector2D openingCenter() {
+    return Vector2D.builder(width() / 2, fallLength()).build();
+  }
 }

@@ -256,8 +256,8 @@ public class PedestrianDynamicsProgram implements MainProgram {
   private Collection<Wall> initializeSystemWalls(final StaticData staticData) {
     final Collection<Wall> systemWalls = new HashSet<>();
 
-    final Wall leftVerticalWall = Wall.builder(ZERO, ZERO, ZERO, staticData.totalSystemLength()).build();
-    final Wall rightVerticalWall = Wall.builder(staticData.width(), ZERO, staticData.width(), staticData.totalSystemLength()).build();
+    final Wall leftVerticalWall = Wall.builder(ZERO, staticData.fallLength(), ZERO, staticData.totalSystemLength()).build();
+    final Wall rightVerticalWall = Wall.builder(staticData.width(), staticData.fallLength(), staticData.width(), staticData.totalSystemLength()).build();
 
     final double horizontalWallWidth = (staticData.width()-staticData.diameterOpening()) / 2;
 

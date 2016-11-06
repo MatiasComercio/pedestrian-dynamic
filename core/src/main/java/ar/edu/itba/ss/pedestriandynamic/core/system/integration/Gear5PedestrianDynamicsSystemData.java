@@ -28,12 +28,14 @@ public class Gear5PedestrianDynamicsSystemData extends Gear5SystemData {
   private final StaticData staticData;
   private final Collection<Wall> walls;
   private final NeighboursFinder neighboursFinder;
-  private final double fallLength;
+  private final Target mainTarget;
+  private final List<Target> secondaryTargets;
 
   private Map<Particle, Collection<Particle>> currentNeighbours;
   private double kineticEnergy;
   private long nParticlesFlowed;
   private long nParticlesJustFlowed;
+  private long iNextSecondaryTarget = 0;
 
   /* package-private */ Gear5PedestrianDynamicsSystemData(final Collection<Particle> particles,
                                                           final Collection<Wall> walls,
@@ -43,12 +45,29 @@ public class Gear5PedestrianDynamicsSystemData extends Gear5SystemData {
 
     this.walls = Collections.unmodifiableCollection(walls);
     this.currentNeighbours = new HashMap<>(); // initialize so as not to be null
-    this.fallLength = staticData.fallLength();
 
     this.neighboursFinder = new BruteForceMethodImpl(PERIODIC_LIMIT, RC);
 
+    // init system targets
+    this.mainTarget = Target.builder(staticData.openingCenter()).build();
+    this.secondaryTargets = initializeSecondaryTargets();
+
     // update particles to meet the force of a Social Force Model pedestrian dynamics system
     initWithSystemConditions(particles);
+  }
+
+  private List<Target> initializeSecondaryTargets() {
+    final List<Target> secondaryTargets = new ArrayList<>();
+
+    final double xGap = staticData.maxDiameter();
+    final double yOpening = staticData.openingCenter().y();
+
+    for (double cX = 0 ; cX < staticData.width() ; cX += xGap ) {
+      final Vector2D cPosition = Vector2D.builder(cX, yOpening).build();
+      secondaryTargets.add(Target.builder(cPosition).build());
+    }
+
+    return secondaryTargets;
   }
 
   public Collection<Wall> walls() {
@@ -162,13 +181,26 @@ public class Gear5PedestrianDynamicsSystemData extends Gear5SystemData {
     final Collection<Particle> updatedParticles = new HashSet<>();
     particles.forEach(particle -> {
       final Particle updatedParticle =
-              particleWithInitialForce(particle).withTau(staticData.tau()).withDrivingSpeed(staticData.drivingSpeed());
+              particleWithInitialForce(particle).withTau(staticData.tau()).withDrivingSpeed(staticData.drivingSpeed())
+              .withTargets(particleTargets());
       updatedParticles.add(updatedParticle);
       initParticle(updatedParticle);
     });
 
     // update system data particles
     super.particles(updatedParticles);
+  }
+
+  private Deque<Target> particleTargets() {
+    final Deque<Target> particleTargets = new LinkedList<>();
+    particleTargets.add(mainTarget);
+    particleTargets.add(randomSecondaryTarget());
+
+    return particleTargets;
+  }
+
+  private Target randomSecondaryTarget() {
+    return secondaryTargets.get((int) ((iNextSecondaryTarget ++) % secondaryTargets.size()));
   }
 
   private Particle particleWithInitialForce(final Particle particle) {
@@ -191,14 +223,16 @@ public class Gear5PedestrianDynamicsSystemData extends Gear5SystemData {
 
   private Vector2D totalDrivingForce(final Particle particle) {
     final double drivingForceModule = particle.mass() / particle.tau();
+    final Target currentTarget = particle.targets().peek();
+
     final Vector2D[] normalAndTangentialVersors =
-            Space2DMaths.normalAndTangentialVersors(particle.r0(), particle.currentTarget()); // +++ xtodo
+            Space2DMaths.normalAndTangentialVersors(particle.r0(), currentTarget.position());
 
     if (normalAndTangentialVersors == null) {
       // both particles are at the exactly same position => something is wrong...
       // abort program
       IOService.exit(IOService.ExitStatus.PARTICLES_AT_SAME_POSITION,
-              new Object[] {particle, particle.currentTarget()}); // +++ xtodo
+              new Object[] {particle, currentTarget});
 
       // should not reach here; written so as validators don't complain about possible null's access
       return Space2DMaths.nullVector();
@@ -243,9 +277,10 @@ public class Gear5PedestrianDynamicsSystemData extends Gear5SystemData {
   }
 
   private boolean flowedOut(final Particle particle) {
-    // professor told us to use only the particle's center point, not including its radio
-    if (particle.y() < fallLength && !particle.hasFlowedOut()) {
+    // all the particle must flow out (including its radio)
+    if (particle.y() + particle.radio() < staticData.fallLength() && !particle.hasFlowedOut()) {
       particle.hasFlowedOut(true);
+      particle.targets().poll();
       return true;
     }
     return false;

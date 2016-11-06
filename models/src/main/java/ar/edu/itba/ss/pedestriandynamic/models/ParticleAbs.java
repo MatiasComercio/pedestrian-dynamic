@@ -3,6 +3,10 @@ package ar.edu.itba.ss.pedestriandynamic.models;
 import org.immutables.builder.Builder;
 import org.immutables.value.Value;
 
+import java.util.Deque;
+import java.util.LinkedList;
+import java.util.List;
+
 @Value.Immutable
 @Value.Style(
         typeAbstract = "*Abs",
@@ -10,6 +14,12 @@ import org.immutables.value.Value;
         get = ""
 )
 public abstract class ParticleAbs {
+    /*
+    ************************************* IMPORTANT *************************************
+           Please remember to update the two last methods when updating this class
+    *************************************************************************************
+   */
+
   private static double maxPressure = 0;
 
   private static long idGen = 1;
@@ -179,11 +189,19 @@ public abstract class ParticleAbs {
     ParticleAbs.maxPressure = maxPressure;
   }
 
-  public Particle respawn(final double x, final double y, final double forceX, final double forceY) {
-    return Particle.builder(x, y).id(id())
-            .radio(radio()).mass(mass()).forceX(forceX).forceY(forceY).type(type())
-            .build();
+
+  @Value.Default
+  @Value.Auxiliary
+  public Deque<Target> targets() {
+    return new LinkedList<>();
   }
+
+  /*
+    ************************************* IMPORTANT *************************************
+           Please remember to update the below methods when updating this class
+    *************************************************************************************
+   */
+
 
   public Particle update(final Vector2DAbs uP, final Vector2DAbs uV, final Vector2DAbs uF) {
     if (pressure() > maxPressure) {
@@ -200,6 +218,7 @@ public abstract class ParticleAbs {
             .radio(radio())
             .tau(tau())
             .drivingSpeed(drivingSpeed())
+            .targets(targets())
             .build();
     particle.normalForce(normalForce()); // update normal force
     particle.hasFlowedOut(hasFlowedOut()); // update has flowed out
@@ -223,6 +242,8 @@ public abstract class ParticleAbs {
             + ", forceX=" + forceX()
             + ", forceY=" + forceY()
             + ", speed=" + speed()
+            + ", drivingSpeed=" + drivingSpeed()
+            + ", tau=" + tau()
             + ", mass=" + mass()
             + ", kinetic energy=" + kineticEnergy()
             + "}";
