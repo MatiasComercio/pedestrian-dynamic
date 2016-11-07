@@ -6,10 +6,7 @@ import ar.edu.itba.ss.pedestriandynamic.core.system.integration.Gear5PedestrianD
 import ar.edu.itba.ss.pedestriandynamic.core.system.integration.GearPedestrianDynamicsSystem;
 import ar.edu.itba.ss.pedestriandynamic.interfaces.MainProgram;
 import ar.edu.itba.ss.pedestriandynamic.interfaces.TimeDrivenSimulationSystem;
-import ar.edu.itba.ss.pedestriandynamic.models.Particle;
-import ar.edu.itba.ss.pedestriandynamic.models.StaticData;
-import ar.edu.itba.ss.pedestriandynamic.models.Wall;
-import ar.edu.itba.ss.pedestriandynamic.models.WallType;
+import ar.edu.itba.ss.pedestriandynamic.models.*;
 import ar.edu.itba.ss.pedestriandynamic.services.IOService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -31,7 +28,6 @@ public class PedestrianDynamicsProgram implements MainProgram {
   private static final String OVITO_FILE_EXTENSION = ".xyz";
   private static final String DEFAULT_OVITO_FILE_NAME = "ovito";
   private static final String STATISTICS_FILE_EXTENSION = ".csv";
-  private static final String DEFAULT_KINETIC_ENERGY_FILE_NAME = "kinetic_energy";
   private static final String DEFAULT_SYSTEM_STOPPED_FILE_NAME = "system_stopped";
   private static final String DEFAULT_FLOW_FILE_NAME = "flow";
   private static final String DEFAULT_MEDIA_FLOW_FILE_NAME = "flow_media";
@@ -40,7 +36,6 @@ public class PedestrianDynamicsProgram implements MainProgram {
 
   private static final double MS_TO_S = 1/1000.0;
   private static final double DELTA_LOG = .5;
-  private static final double ERROR_TOLERANCE = 7e-7;
 
   // run args index
   private static final int I_STATIC_DATA = 1;
@@ -50,11 +45,11 @@ public class PedestrianDynamicsProgram implements MainProgram {
   private static final int I_DELTA_2 = 5;
   private static final int I_PRINT_OVITO = 6;
   private static final int I_DATED_FILE = 7;
-  private static final int N_ARGS_EXPECTED = 8;
+  private static final int I_CONSIDER_DELTA_1 = 8;
+  private static final int N_ARGS_EXPECTED = 9;
 
   private final String defaultOutputFolder;
   private final Path pathToOvitoFile;
-  private final Path pathToKineticEnergyFile;
   private final Path pathToFlowFile;
 
   public PedestrianDynamicsProgram(final String[] args) {
@@ -73,9 +68,6 @@ public class PedestrianDynamicsProgram implements MainProgram {
 
     this.pathToOvitoFile =
             IOService.createOutputFile(defaultOutputFolder, DEFAULT_OVITO_FILE_NAME, OVITO_FILE_EXTENSION);
-    this.pathToKineticEnergyFile =
-            IOService.createOutputFile(defaultOutputFolder,
-                    DEFAULT_KINETIC_ENERGY_FILE_NAME, STATISTICS_FILE_EXTENSION);
     this.pathToFlowFile =
             IOService.createOutputFile(defaultOutputFolder,
                     DEFAULT_FLOW_FILE_NAME, STATISTICS_FILE_EXTENSION);
@@ -121,7 +113,6 @@ public class PedestrianDynamicsProgram implements MainProgram {
 
     // close resources
     IOService.closeOutputFile(pathToOvitoFile);
-    IOService.closeOutputFile(pathToKineticEnergyFile);
     IOService.closeOutputFile(pathToFlowFile);
   }
 
@@ -134,12 +125,13 @@ public class PedestrianDynamicsProgram implements MainProgram {
     final double simulationTime = staticData.simulationTime();
     final double delta2 = staticData.delta2();
 
+    long nPedestrians = granularMediaSystem.getSystemData().particles().stream()
+            .filter(particle -> particle.type() == ParticleType.PEDESTRIAN).count();
+
     long step = 0;
     long logStep = 0;
     double currentTime = 0;
-    boolean considerKineticEnergy = false;
-    double kineticEnergy; // initialization not needed
-    while (currentTime < simulationTime) {
+    while (currentTime < simulationTime || (!staticData.considerDelta1())) {
       // choose output action based on given parameters
       if (currentTime >= (delta2 * step)) {
         // print system after printStepGap dt units
@@ -154,27 +146,23 @@ public class PedestrianDynamicsProgram implements MainProgram {
         logStep ++;
       }
 
+      if (granularMediaSystem.getSystemData().nParticlesFlowed() >= nPedestrians) {
+        systemStopped(step, currentTime);
+        break;
+      }
+
       // evolve system
       granularMediaSystem.evolveSystem(dt);
 
       // advance time and count the current step
       currentTime += dt;
 
-      appendToFlow(pathToFlowFile, granularMediaSystem.getSystemData().nParticlesJustFlowed(), step, currentTime, outputSerializerHelper);
-
-      // if no more particles are moving => system's evolution is finished
-      kineticEnergy = granularMediaSystem.getSystemData().kineticEnergy();
-      if (!considerKineticEnergy) { // start considering kinetic energy after it overcomes the default ERROR_TOLERANCE
-        considerKineticEnergy = kineticEnergy > ERROR_TOLERANCE;
-      }
-      if (considerKineticEnergy && kineticEnergy < ERROR_TOLERANCE) {
-        systemStopped(step, currentTime);
-        break;
-      }
+      appendToFlow(pathToFlowFile, granularMediaSystem.getSystemData().nParticlesJustFlowed(),
+              step, currentTime, outputSerializerHelper);
     }
 
-    if (!Double.valueOf(simulationTime).equals(ZERO)) {
-      outputMediaFlow(granularMediaSystem.getSystemData().nParticlesFlowed() / simulationTime);
+    if (!Double.valueOf(currentTime).equals(ZERO)) {
+      outputMediaFlow(granularMediaSystem.getSystemData().nParticlesFlowed() / currentTime);
     }
 
     final double endTime = System.currentTimeMillis();
@@ -231,18 +219,19 @@ public class PedestrianDynamicsProgram implements MainProgram {
     final double delta1 = IOService.parseAsDouble(args[I_DELTA_1], "<delta_1>");
     final double delta2 = IOService.parseAsDouble(args[I_DELTA_2], "<delta_2>");
     final boolean printOvito = IOService.parseAsBoolean(args[I_PRINT_OVITO], "<print_ovito>");
+    final boolean considerDelta1 = IOService.parseAsBoolean(args[I_CONSIDER_DELTA_1], "<consider_delta_1>");
 
     return staticData
-            .withSimulationTime(simulationTime).withDelta1(delta1).withDelta2(delta2).withPrintOvito(printOvito);
+            .withSimulationTime(simulationTime).withDelta1(delta1)
+            .withDelta2(delta2).withPrintOvito(printOvito).withConsiderDelta1(considerDelta1);
   }
 
   private void outputSystem(final Gear5PedestrianDynamicsSystemData systemData,
-                            final long step, final double currentTime, final StaticData staticData,
-                            final OutputSerializerHelper outputSerializerHelper) {
+                            final long step, @SuppressWarnings("UnusedParameters") final double currentTime,
+                            final StaticData staticData, final OutputSerializerHelper outputSerializerHelper) {
     if (staticData.printOvito()) {
       appendToOvito(pathToOvitoFile, systemData.particles(), systemData.walls(), step, outputSerializerHelper);
     }
-    appendToKineticEnergy(pathToKineticEnergyFile, systemData.kineticEnergy(), step, currentTime);
   }
 
   private void appendToFlow(final Path pathToFlowFile, final long nParticlesFlowed,
@@ -290,13 +279,5 @@ public class PedestrianDynamicsProgram implements MainProgram {
                              final OutputSerializerHelper outputSerializerHelper) {
     final String ovitoOutputData = outputSerializerHelper.ovitoOutput(particleSet, walls, iteration);
     IOService.appendToFile(ovitoFilePath, ovitoOutputData);
-  }
-
-  private void appendToKineticEnergy(final Path pathToKineticEnergyFile,
-                                     final double kineticEnergy,
-                                     final long step,
-                                     final double currentTime) {
-    final String kineticOutputData = step + ", " + currentTime + ", " + kineticEnergy + System.lineSeparator();
-    IOService.appendToFile(pathToKineticEnergyFile, kineticOutputData);
   }
 }

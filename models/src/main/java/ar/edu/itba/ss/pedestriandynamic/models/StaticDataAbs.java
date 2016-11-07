@@ -117,6 +117,9 @@ public abstract class StaticDataAbs {
     return false;
   }
 
+  @Value.Default
+  public boolean considerDelta1() { return true; }
+
   @Value.Derived
   public Vector2D openingCenter() {
     return Vector2D.builder(width() / 2, fallLength()).build();

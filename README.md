@@ -31,4 +31,21 @@ Generate dynamic data file
 
 Run granular system's simulation
 
-    $ java -jar core/target/pedestrian-dynamic.jar sim output/static.dat output/dynamic.dat .5 1e-7 1e-4 true true
+    $ java -jar core/target/pedestrian-dynamic.jar sim output/static.dat output/dynamic.dat 100 1e-4 1e-2 true true false
+
+## Provided scripts
+For replaying a bunch of simulations to make statistics analysis, run the following from the root's directory
+
+    $ ./tp6_simulations_200.sh
+
+You can configure the parameters for the simulations from that file directly.
+A `statistics` folder will be created, and all the necessary scripts to process data will be inside it.
+
+All you have to do to process data and generate tables is run the following from the `statistics` folder
+
+    $ ./robot.sh
+
+To compile latex documents with graphics, just do the following from the `statistics` folder,
+ after having called the `robot.sh` script
+
+    $ ./compile_tex.sh
