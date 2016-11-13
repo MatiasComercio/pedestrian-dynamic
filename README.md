@@ -51,8 +51,9 @@ To compile latex documents with graphics, just do the following from the `statis
     $ ./compile_tex.sh
 
 ## Ovito color relative pressure
-To obtain an ovito output with pressure colors relative to the maximum of the given simulation, jus run from the project's root
+To obtain an ovito output with pressure colors relative to the maximum of the given simulation, just run from the project's root
 
     $ ./color_ovito.sh
 
-New colors will be appended to each row as R G B
+After executing the above code, a new ovito file will be generated, with the name `new_ovito.xyz`.
+This file will have the new colors appended to each original row as R G B.
