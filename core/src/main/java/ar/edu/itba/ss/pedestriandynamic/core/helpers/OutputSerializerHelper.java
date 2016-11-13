@@ -14,6 +14,7 @@ import static ar.edu.itba.ss.pedestriandynamic.models.ParticleType.SPAWN;
 
 @SuppressWarnings("StringBufferReplaceableByString")
 public class OutputSerializerHelper {
+  @SuppressWarnings("unused")
   private static final Logger LOGGER = LoggerFactory.getLogger(OutputSerializerHelper.class);
   private static final double ZERO = 0;
   private static final String NL = System.lineSeparator();
@@ -168,7 +169,9 @@ public class OutputSerializerHelper {
             // class
             .append(particle.type().getCode()).append(SPLITTER)
             // type
-            .append(particle.type()).append(SPLITTER);
+            .append(particle.type()).append(SPLITTER)
+            // current pressure
+            .append(particle.pressure()).append(SPLITTER);
 
     return sb.append(NL);
   }

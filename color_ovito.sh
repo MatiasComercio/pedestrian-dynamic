@@ -1,0 +1,14 @@
+#!/bin/bash
+
+OUTPUT_FOLDER=output
+OVITO_FILE=ovito.xyz
+NEW_OVITO_FILE=new_ovito.xyz
+OVITO_FILE_PATH=${OUTPUT_FOLDER}/${OVITO_FILE}
+NEW_OVITO_FILE_PATH=${OUTPUT_FOLDER}/${NEW_OVITO_FILE}
+TMP_FILE=tmp.xyz
+MAX_PRESSURE_AWK=max_pressure.awk
+COLOR_OVITO_AWK=color_ovito.awk
+
+max_pressure=$(awk -F " " -f ${MAX_PRESSURE_AWK} ${OVITO_FILE_PATH});
+awk -F " " -v MAX_PRESSURE="$max_pressure" -v TMP_FILE="$TMP_FILE" -f ${COLOR_OVITO_AWK} ${OVITO_FILE_PATH}
+mv ${TMP_FILE} ${NEW_OVITO_FILE_PATH}
